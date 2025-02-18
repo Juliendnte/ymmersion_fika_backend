@@ -1,19 +1,29 @@
 import {ConfigService} from "@nestjs/config";
-import {Module} from "@nestjs/common";
-import {PrismaModule} from "src/prisma/prisma/prisma.module";
+import {forwardRef, Module} from "@nestjs/common";
+import {PrismaModule} from "src/prisma/prisma.module";
 import {JwtAdminStrategy} from "src/module/auth/strategy/jwt.admin.strategy";
 import {JwtOptionalStrategy} from "src/module/auth/strategy/optional-jwt-auth.guards";
+import {EmailModule} from "src/module/auth/email/email.module";
+import {AuthController} from "src/module/auth/auth.controller";
+import {AuthService} from "src/module/auth/auth.service";
+import {UserService} from "src/module/user/user.service";
+import {JwtModule} from "@nestjs/jwt";
 
-
-const config = new ConfigService();
 
 @Module({
     imports: [
         PrismaModule,
-        JwtModule.register({
-            secret: config.get('JWT_SECRET'),
-        })
+        JwtModule.registerAsync({
+            useFactory: async (configService: ConfigService) => ({
+                secret: configService.get('JWT_SECRET'),
+            }),
+            inject: [ConfigService],
+        }),
+        forwardRef(() => EmailModule),
     ],
-    controllers: [],
-    providers: [JwtAdminStrategy, JwtOptionalStrategy]
+    controllers: [AuthController],
+    providers: [AuthService, UserService, JwtAdminStrategy, JwtOptionalStrategy],
+    exports: [AuthService],
 })
+export class AuthModule {
+}

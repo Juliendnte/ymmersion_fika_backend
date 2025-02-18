@@ -26,13 +26,3 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return user;
   }
 }
-
-@Injectable()
-export class JwtSuperAdminGuard extends AuthGuard('jwt-superadmin') {
-  handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
-    if (err || !user) {
-      throw new UnauthorizedException(ERROR.UnauthorizedAccess);
-    }
-    return user;
-  }
-}

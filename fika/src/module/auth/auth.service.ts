@@ -1,17 +1,18 @@
 import {ConflictException, Injectable, NotFoundException, UnauthorizedException} from "@nestjs/common";
-import {PrismaService} from "src/prisma/prisma/prisma.service";
+import {PrismaService} from "src/prisma/prisma.service";
 import {JwtService} from '@nestjs/jwt'
 import {ConfigService} from "@nestjs/config";
 import {ERROR} from "src/common/constants/error.constants";
 import * as bcrypt from 'bcrypt';
 import {CreateUserDto} from "src/module/user/dto/create-user.dto";
+import {EmailService} from "src/module/auth/email/email.service";
 
 @Injectable()
 export class AuthService {
     constructor(
         private prismaService: PrismaService,
         private jwtService: JwtService,
-        private configService: ConfigService
+        private configService: ConfigService,
     ) {
     }
 
@@ -121,9 +122,48 @@ export class AuthService {
 
         await this.prismaService.user.update({
             where: {
-                uid: user.uid
+                uid: user.uid,
+            },
+            data: {
+                refreshToken,
             }
-
         })
+        return {
+            accessToken,
+            refreshToken
+        }
     }
+
+    async forgotPassword(email: string): Promise<void> {
+        const user = await this.prismaService.user.findUnique({
+            where: {email},
+        });
+        if (!user) {
+            throw new NotFoundException(ERROR.ResourceNotFound);
+        }
+        //await this.emailService.sendResetPasswordLink(user);
+    }
+
+    /*
+    async resetPassword(token: string, password: string) {
+        const user = await this.emailService.decodeConfirmationToken(token);
+
+        if (!user) {
+            throw new NotFoundException(ERROR.ResourceNotFound);
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        await this.prismaService.user.update({
+            where: {
+                uid: user.uid,
+            },
+            data: {
+                resetToken: null,
+                password: hashedPassword,
+            },
+        });
+    }
+
+     */
 }

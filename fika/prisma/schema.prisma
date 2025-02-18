@@ -7,24 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  uid          String         @id @default(uuid()) @db.Uuid
-  name         String         @db.VarChar(60)
-  email        String         @unique @db.VarChar(100)
-  password     String         @db.VarChar(255)
-  imagePath    String         @default("defaul_img_path") @db.VarChar(255)
-  idRole       Int
-  refreshToken String?        @unique
-  resetToken   String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  Role         Role           @relation(fields: [idRole], references: [id])
-  OrderHistory OrderHistory[]
-  Order        Order[]
-
-  @@map("users")
-}
-
 model Role {
   id    Int    @id @default(autoincrement())
   role  String @unique @db.VarChar(20)
@@ -33,70 +15,94 @@ model Role {
   @@map("roles")
 }
 
-model Produit {
-  id                 Int                  @id @default(autoincrement())
-  name               String               @unique @db.VarChar(100)
-  description        String               @db.VarChar(500)
-  imagePath          String               @default("produit/default.png") @db.VarChar(255)
-  price              Decimal
-  isPlatDuJour       Boolean
-  promotion          Decimal              @default(0)
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  idType             Int
-  Produit_Ingredient Produit_Ingredient[]
-  Type               Type                 @relation(fields: [idType], references: [id])
-  OrderHistory       OrderHistory[]
-  OrderItem          OrderItem[]
+model User {
+  uid          String    @id @default(uuid()) @db.Uuid
+  name         String    @db.VarChar(60)
+  email        String    @unique @db.VarChar(100)
+  password     String    @db.VarChar(255)
+  imagePath    String    @default("defaul_img_path") @db.VarChar(255)
+  refreshToken String?   @unique
+  resetToken   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  idRole       Int
+  Role         Role      @relation(fields: [idRole], references: [id], onDelete: Restrict)
+  Order        Order[]
+  Produit      Produit[]
 
-  @@map("produits")
+  @@map("users")
+}
+
+model Produit {
+  id                 Int                 @id @default(autoincrement())
+  name               String              @unique @db.VarChar(100)
+  description        String?             @db.VarChar(500)
+  imagePath          String              @default("produit/default.png") @db.VarChar(255)
+  price              Decimal             @db.Decimal(10, 2)
+  isPlatDuJour       Boolean             @default(false)
+  promotion          Decimal?            @db.Decimal(10, 2)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  idType             Int?
+  idCategory         Int?
+  uidUser            String              @db.Uuid()
+  User               User                @relation(fields: [uidUser], references: [uid], onDelete: Restrict)
+  Category           Category?           @relation(fields: [idCategory], references: [id], onDelete: SetNull)
+  Type               Type?               @relation(fields: [idType], references: [id], onDelete: SetNull)
+  Produit_Ingredient ProduitIngredient[]
+  OrderItem          OrderItem[]
+  Option             Option[]
+
+  @@map("products")
 }
 
 model Order {
-  id         Int         @id @default(autoincrement())
-  uidUser    String      @db.Uuid
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  idStatus   Int         @default(1)
-  totalPrice Decimal // Total calculé de la commande
-  User       User        @relation(fields: [uidUser], references: [uid])
-  OrderItems OrderItem[] // Relation vers les articles de la commande
-  Status     OrderStatus @relation(fields: [idStatus], references: [id])
+  id          Int           @id @default(autoincrement())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  totalPrice  Decimal       @db.Decimal(10, 2) // Total calculé de la commande pour historique
+  idStatus    Int           @default(1) // par default En attente
+  uidUser     String        @db.Uuid
+  User        User          @relation(fields: [uidUser], references: [uid], onDelete: Restrict)
+  Status      OrderStatus   @relation(fields: [idStatus], references: [id], onDelete: Restrict)
+  OrderItems  OrderItem[]
+  OrderOption OrderOption[]
 
   @@map("orders")
 }
 
 model OrderItem {
-  id        Int     @id @default(autoincrement())
-  idOrder   Int // Lien vers la commande globale
-  idProduit Int // Lien vers le produit commandé
-  quantity  Int     @default(1) // Quantité du produit commandé
-  unitPrice Decimal // Prix unitaire au moment de la commande
-  Produit   Produit @relation(fields: [idProduit], references: [id])
-  Order     Order   @relation(fields: [idOrder], references: [id])
+  id        Int      @id @default(autoincrement())
+  idOrder   Int
+  idProduit Int?
+  quantity  Int      @default(1)
+  unitPrice Decimal  @db.Decimal(10, 2)
+  Produit   Produit? @relation(fields: [idProduit], references: [id], onDelete: SetNull)
+  Order     Order    @relation(fields: [idOrder], references: [id], onDelete: Restrict)
 
-  @@map("order_items")
+  @@map("orders_items")
 }
 
 model Ingredient {
-  id                 Int                  @id @default(autoincrement())
-  name               String               @unique
+  id                 Int                 @id @default(autoincrement())
+  name               String              @unique
   quantity           Int
   unit               String
-  Produit_Ingredient Produit_Ingredient[]
+  Produit_Ingredient ProduitIngredient[]
+  Option             Option[]
 
   @@map("ingredients")
 }
 
-model Produit_Ingredient {
+model ProduitIngredient {
   idIngredient Int
   idProduit    Int
   quantity     Int
-  Ingredient   Ingredient @relation(fields: [idIngredient], references: [id])
-  Produit      Produit    @relation(fields: [idProduit], references: [id])
+  Ingredient   Ingredient @relation(fields: [idIngredient], references: [id], onDelete: Restrict)
+  Produit      Produit    @relation(fields: [idProduit], references: [id], onDelete: Cascade)
 
   @@id([idProduit, idIngredient])
-  @@map("produits_ingredients")
+  @@map("products_ingredients")
 }
 
 model Type {
@@ -107,24 +113,43 @@ model Type {
   @@map("types")
 }
 
+model Category {
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  Produit Produit[]
+
+  @@map("categories")
+}
+
 model OrderStatus {
   id    Int     @id @default(autoincrement())
   name  String  @unique // "En attente", "En préparation", "Prête", "Terminée"
   Order Order[]
 
-  @@map("order_status")
+  @@map("orders_status")
 }
 
-model OrderHistory {
-  id    Int     @id @default(autoincrement())
-  price Decimal @db.Decimal(10, 2) // Prix payé au moment de la commande
+model Option {
+  id           Int      @id @default(autoincrement())
+  option       Boolean // true ajout , false remove
+  price        Decimal? @db.Decimal(10, 2) // Prix de l'ingredient si option true
+  available    Boolean  @default(true)
+  idProduit    Int
+  idIngredient Int
 
-  completedAt DateTime @default(now())
+  Produit     Produit       @relation(fields: [idProduit], references: [id], onDelete: Cascade)
+  Ingredient  Ingredient    @relation(fields: [idIngredient], references: [id], onDelete: Cascade)
+  OrderOption OrderOption[]
 
-  User      User?    @relation(fields: [userUid], references: [uid])
-  userUid   String?  @db.Uuid
-  Produit   Produit? @relation(fields: [produitId], references: [id])
-  produitId Int?
+  @@map("options")
+}
 
-  @@map("order_history")
+model OrderOption {
+  idOption Int
+  idOrder  Int
+  Option   Option @relation(fields: [idOption], references: [id], onDelete: Restrict)
+  Order    Order  @relation(fields: [idOrder], references: [id], onDelete: Cascade)
+
+  @@id([idOrder, idOption])
+  @@map("orders_options")
 }

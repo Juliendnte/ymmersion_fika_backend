@@ -1,34 +1,38 @@
 import {
-  ForbiddenException,
-  Injectable,
-  UnauthorizedException,
+    ForbiddenException,
+    Injectable,
+    UnauthorizedException,
 } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UserService } from 'src/module/user/user.service';
-import { ConfigService } from '@nestjs/config';
-import { ERROR } from 'src/common/constants/error.constants';
+import {PassportStrategy} from '@nestjs/passport';
+import {ExtractJwt, Strategy} from 'passport-jwt';
+import {UserService} from 'src/module/user/user.service';
+import {ConfigService} from '@nestjs/config';
+import {ERROR} from 'src/common/constants/error.constants';
 
 @Injectable()
 export class JwtAdminStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private userService: UserService) {
-    const config = new ConfigService();
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: config.get('JWT_SECRET'),
-    });
-  }
-
-  async validate(payload: { userId: string }) {
-    const user = await this.userService.findOne(payload.userId);
-    if (!user) {
-      throw new UnauthorizedException(ERROR.UnauthorizedAccess);
+    constructor(private userService: UserService) {
+        const config = new ConfigService();
+        const secretOrKey = config.get('JWT_SECRET');
+        if (!secretOrKey) {
+            throw new UnauthorizedException();
+        }
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey
+        });
     }
 
-    if (user.Role.role.toLowerCase() !== 'admin') {
-      throw new ForbiddenException(ERROR.ForbiddenAction);
-    }
+    async validate(payload: { userId: string }) {
+        const user = await this.userService.findOne(payload.userId);
+        if (!user) {
+            throw new UnauthorizedException(ERROR.UnauthorizedAccess);
+        }
 
-    return user;
-  }
+        if (user.Role.role.toLowerCase() !== 'admin') {
+            throw new ForbiddenException(ERROR.ForbiddenAction);
+        }
+
+        return user;
+    }
 }
