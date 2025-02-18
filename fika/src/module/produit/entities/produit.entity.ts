@@ -1,6 +1,7 @@
 import {UserEntity} from "src/module/user/entities/user.entity";
 import {TypeEntity} from "src/module/produit/entities/type.entity";
 import {CategoryEntity} from "src/module/produit/entities/category.entity";
+import {Decimal} from "@prisma/client/runtime/client";
 
 export class ProduitEntity{
     constructor({User, Category, Type, ...data} : Partial<ProduitEntity>) {
@@ -18,11 +19,11 @@ export class ProduitEntity{
     }
 
     name: string;
-    description: string;
+    description?: string | null;
     imagePath: string;
-    price: number;
+    price: Decimal;
     isPlatDuJour: boolean;
-    promotion?: number;
+    promotion?: Decimal | null;
     createdAt: Date;
     updatedAt: Date;
     Type: TypeEntity;

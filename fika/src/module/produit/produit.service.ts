@@ -2,6 +2,7 @@ import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common
 import {PrismaService} from "src/prisma/prisma.service";
 import {CreateProduitDto} from "src/module/produit/dto/create-produit.dto";
 import {ERROR} from "src/common/constants/error.constants";
+import {ProduitEntity} from "src/module/produit/entities/produit.entity";
 
 @Injectable()
 export class ProduitService {
@@ -63,12 +64,12 @@ export class ProduitService {
         if (!Type) {
             throw new NotFoundException(ERROR.ResourceNotFound);
         }
-        const produit = this.prisma.produit.findMany({
+        const produits = await this.prisma.produit.findMany({
             where: {
                 idType: Type.id
             }
         })
 
-        return produit;
+        return produits.map(produit => new ProduitEntity(produit))
     }
 }
