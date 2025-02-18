@@ -1,0 +1,14 @@
+services:
+  fika:
+    image: postgres:latest
+    container_name: fika
+    environment:
+      - POSTGRES_USER=fika_user
+      - POSTGRES_PASSWORD=fika_password
+      - POSTGRES_DB=fika_db
+    volumes:
+      - fika:/var/lib/postgresql/data
+    ports:
+      - '5435:5432'
+volumes:
+  fika:
