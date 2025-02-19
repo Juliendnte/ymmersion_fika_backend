@@ -1,9 +1,11 @@
-import {HttpAdapterHost, NestFactory, Reflector} from '@nestjs/core';
+import {NestFactory, Reflector} from '@nestjs/core';
 import {AppModule} from './app.module';
 import {ClassSerializerInterceptor, ValidationPipe} from "@nestjs/common";
 import {customValidationExceptionFactory} from "src/common/filters/custom-validation-exception.factory";
 import {HttpExceptionFilter} from "src/common/filters/http-exception.filter";
 import {PrismaClientExceptionFilter} from "src/prisma/exceptions/prisma-client-exception.filter";
+import {join} from 'path';
+import * as express from 'express';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -15,8 +17,8 @@ async function bootstrap() {
         })
     )
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
+    app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
-    const {httpAdapter} = app.get(HttpAdapterHost)
     app.enableCors();
     app.useGlobalFilters(new HttpExceptionFilter())
     app.useGlobalFilters(new PrismaClientExceptionFilter())

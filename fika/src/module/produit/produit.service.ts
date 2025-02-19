@@ -41,6 +41,7 @@ export class ProduitService {
                     promotion: produit.promotion ? produit.promotion : null,
                     idType: Type.id,
                     idCategory: Category.id,
+                    imagePath: '/uploads' + file.filename,
                     uidUser
                 }
             })
