@@ -1,6 +1,6 @@
 import {
     BadRequestException,
-    Body,
+    Body, Catch,
     Controller,
     Delete,
     Get, HttpException, HttpStatus, NotFoundException,
@@ -20,8 +20,10 @@ import {diskStorage} from 'multer';
 import {FileInterceptor} from "@nestjs/platform-express";
 import {extname} from 'path';
 import {ERROR} from "src/common/constants/error.constants";
+import {HttpExceptionFilter} from "src/common/filters/http-exception.filter";
 
 @Controller('produits')
+@Catch(HttpExceptionFilter)
 export class ProduitController {
     constructor(private readonly produitService: ProduitService) {
     }
