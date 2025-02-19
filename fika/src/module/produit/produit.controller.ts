@@ -21,7 +21,7 @@ import {FileInterceptor} from "@nestjs/platform-express";
 import {extname} from 'path';
 import {ERROR} from "src/common/constants/error.constants";
 
-@Controller('produit')
+@Controller('produits')
 export class ProduitController {
     constructor(private readonly produitService: ProduitService) {
     }
