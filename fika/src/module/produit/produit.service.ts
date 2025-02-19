@@ -14,7 +14,7 @@ export class ProduitService {
     async create({type, category, ...produit}: CreateProduitDto, uidUser: string, file: Express.Multer.File) {
         const finalPath = join(__dirname, '../../../uploads', file.filename);
         return this.prisma.$transaction(async (prisma) =>{
-            const Type = await this.prisma.type.findUnique({
+            const Type = await prisma.type.findUnique({
                 where: {
                     name: type,
                 }
@@ -23,7 +23,7 @@ export class ProduitService {
                 throw new BadRequestException(ERROR.InvalidInputFormat);
             }
 
-            const Category = await this.prisma.category.findUnique({
+            const Category = await prisma.category.findUnique({
                 where: {
                     name: category,
                 }
@@ -32,7 +32,7 @@ export class ProduitService {
                 throw new BadRequestException(ERROR.InvalidInputFormat);
             }
 
-            const product = await this.prisma.produit.create({
+            const product = await prisma.produit.create({
                 data: {
                     name: produit.name,
                     description: produit.description,
@@ -45,12 +45,9 @@ export class ProduitService {
                 }
             })
             try {
-                // 2. Déplacer l'image du dossier temporaire vers le dossier final
                 await fs.move(file.path, finalPath);
-
                 return product;
             } catch (error) {
-                // 3. En cas d'erreur, rollback automatique grâce à $transaction
                 throw new Error('File move failed, rolling back entity creation');
             }
         })
