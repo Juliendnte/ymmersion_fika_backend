@@ -10,9 +10,10 @@ import {IngredientModule} from './module/ingredient/ingredient.module';
 import {UserModule} from "src/module/user/user.module";
 import {AuthModule} from "src/module/auth/auth.module";
 import {ConfigModule} from "@nestjs/config";
+import { UploadModule } from './uploads/upload.module';
 
 @Module({
-    imports: [ConfigModule.forRoot({isGlobal: true, envFilePath: '.env'}), AuthModule, UserModule, ProduitModule, OrderModule, IngredientModule,],
+    imports: [ConfigModule.forRoot({isGlobal: true, envFilePath: '.env'}), AuthModule, UserModule, ProduitModule, OrderModule, IngredientModule, UploadModule,],
     providers: [OrderService, IngredientService],
 })
 export class AppModule {

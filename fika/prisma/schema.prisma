@@ -75,10 +75,10 @@ model Order {
 model OrderItem {
   id        Int      @id @default(autoincrement())
   idOrder   Int
-  idProduit Int?
+  idProduit Int
   quantity  Int      @default(1)
   unitPrice Decimal  @db.Decimal(10, 2)
-  Produit   Produit? @relation(fields: [idProduit], references: [id], onDelete: SetNull)
+  Produit   Produit? @relation(fields: [idProduit], references: [id], onDelete: Restrict)
   Order     Order    @relation(fields: [idOrder], references: [id], onDelete: Restrict)
 
   @@map("orders_items")

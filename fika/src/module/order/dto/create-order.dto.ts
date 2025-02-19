@@ -1,4 +1,5 @@
 import {IsNotEmpty, IsNumber, IsString} from "class-validator";
+import {CreateOrderItemsDto} from "src/module/order/dto/create-order-items.dto";
 
 export class CreateOrderDto {
 
@@ -10,4 +11,6 @@ export class CreateOrderDto {
     @IsNotEmpty()
     status: string;
 
+    @IsNotEmpty()
+    OrdersItems: CreateOrderItemsDto[];
 }
