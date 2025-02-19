@@ -1,37 +1,73 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, UseGuards} from '@nestjs/common';
+import {
+    BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    Get, HttpException, HttpStatus, NotFoundException,
+    Param,
+    Patch,
+    Post,
+    UploadedFile,
+    UseGuards,
+    UseInterceptors
+} from '@nestjs/common';
 import {ProduitService} from "src/module/produit/produit.service";
 import {CreateProduitDto} from "src/module/produit/dto/create-produit.dto";
 import {JwtAuthGuard} from "src/module/auth/strategy/jwt-auth.guards";
 import {GetUser} from "src/common/decorators/get-user.decorator";
 import {User} from "@prisma/client";
+import {diskStorage} from 'multer';
+import {FileInterceptor} from "@nestjs/platform-express";
+import {extname} from 'path';
+import {ERROR} from "src/common/constants/error.constants";
 
 @Controller('produit')
 export class ProduitController {
-    constructor(private readonly produitService: ProduitService) {}
+    constructor(private readonly produitService: ProduitService) {
+    }
 
     @Post()
     @UseGuards(JwtAuthGuard)
-    createProduit(@Body() createProduitDto: CreateProduitDto, @GetUser() user: User) {
-        return this.produitService.create(createProduitDto, user.uid)
+    @UseInterceptors(
+        FileInterceptor('file', {
+            storage: diskStorage({
+                destination: './temp',
+                filename: (req, file, cb) => {
+                    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+                    cb(null, uniqueSuffix + extname(file.originalname));
+                },
+            }),
+        }),
+    )
+    async createProduit(@UploadedFile() file: Express.Multer.File, @Body() createProduitDto: CreateProduitDto, @GetUser() user: User) {
+        if (!file) {
+            throw new NotFoundException(ERROR.InvalidInputFormat);
+        }
+        try {
+            const entity = await this.produitService.create(createProduitDto, user.uid, file);
+            return {message: 'File uploaded and produit created', entity};
+        } catch (error) {
+            throw new BadRequestException(ERROR.ErrorSystem);
+        }
     }
 
     @Get()
-    getProduits(){
+    getProduits() {
         return this.produitService.findAll()
     }
 
     @Get('promo')
-    getProduitPromo(){
+    getProduitPromo() {
         return this.produitService.findByPromo()
     }
 
     @Get('platDuJour')
-    getProduitPlatDuJour(){
+    getProduitPlatDuJour() {
         return this.produitService.findByPlatDuJour()
     }
 
     @Get('popular')
-    getProduitPopular(){
+    getProduitPopular() {
         return this.produitService.findPopular()
     }
 
@@ -46,7 +82,7 @@ export class ProduitController {
     }
 
     @Patch(':id')
-    updateProduit(@Param('id') id: number, @Body() updateProduitDto : CreateProduitDto){
+    updateProduit(@Param('id') id: number, @Body() updateProduitDto: CreateProduitDto) {
         return this.produitService.update(id, updateProduitDto);
     }
 

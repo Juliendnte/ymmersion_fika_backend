@@ -3,46 +3,60 @@ import {PrismaService} from "src/prisma/prisma.service";
 import {CreateProduitDto} from "src/module/produit/dto/create-produit.dto";
 import {ERROR} from "src/common/constants/error.constants";
 import {ProduitEntity} from "src/module/produit/entities/produit.entity";
+import * as fs from 'fs-extra';
+import { join } from 'path';
 
 @Injectable()
 export class ProduitService {
     constructor(private prisma: PrismaService) {
     }
 
-    async create({type, category, ...produit}: CreateProduitDto, uidUser: string) {
-        const Type = await this.prisma.type.findUnique({
-            where: {
-                name: type,
+    async create({type, category, ...produit}: CreateProduitDto, uidUser: string, file: Express.Multer.File) {
+        const finalPath = join(__dirname, '../../../uploads', file.filename);
+        return this.prisma.$transaction(async (prisma) =>{
+            const Type = await this.prisma.type.findUnique({
+                where: {
+                    name: type,
+                }
+            })
+            if (!Type) {
+                throw new BadRequestException(ERROR.InvalidInputFormat);
             }
-        })
-        if (!Type) {
-            throw new BadRequestException(ERROR.InvalidInputFormat);
-        }
 
-        const Category = await this.prisma.category.findUnique({
-            where: {
-                name: category,
+            const Category = await this.prisma.category.findUnique({
+                where: {
+                    name: category,
+                }
+            })
+            if (!Category) {
+                throw new BadRequestException(ERROR.InvalidInputFormat);
             }
-        })
-        if (!Category) {
-            throw new BadRequestException(ERROR.InvalidInputFormat);
-        }
 
-        return this.prisma.produit.create({
-            data: {
-                name: produit.name,
-                description: produit.description,
-                price: produit.price,
-                isPlatDuJour: produit.isPlatDuJour,
-                promotion: produit.promotion ? produit.promotion : null,
-                idType: Type.id,
-                idCategory: Category.id,
-                uidUser
+            const product = await this.prisma.produit.create({
+                data: {
+                    name: produit.name,
+                    description: produit.description,
+                    price: produit.price,
+                    isPlatDuJour: produit.isPlatDuJour,
+                    promotion: produit.promotion ? produit.promotion : null,
+                    idType: Type.id,
+                    idCategory: Category.id,
+                    uidUser
+                }
+            })
+            try {
+                // 2. Déplacer l'image du dossier temporaire vers le dossier final
+                await fs.move(file.path, finalPath);
+
+                return product;
+            } catch (error) {
+                // 3. En cas d'erreur, rollback automatique grâce à $transaction
+                throw new Error('File move failed, rolling back entity creation');
             }
         })
     }
 
-    async findAll(){
+    async findAll() {
         const produits = await this.prisma.produit.findMany();
         return produits.map(produit => new ProduitEntity(produit));
     }
@@ -74,7 +88,7 @@ export class ProduitService {
         return produits.map(produit => new ProduitEntity(produit));
     }
 
-    async findByPromo(){
+    async findByPromo() {
         const produits = await this.prisma.produit.findMany({
             where: {
                 promotion: {
@@ -90,7 +104,7 @@ export class ProduitService {
         return produits.map(produit => new ProduitEntity(produit));
     }
 
-    async findByPlatDuJour(){
+    async findByPlatDuJour() {
         const produits = await this.prisma.produit.findMany({
             where: {
                 isPlatDuJour: {
