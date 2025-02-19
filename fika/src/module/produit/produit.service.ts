@@ -56,8 +56,9 @@ export class ProduitService {
 
     async findAll() {
         const produits = await this.prisma.produit.findMany();
-        return produits.map(({price, ...produit}) => new ProduitEntity({
+        return produits.map(({price, promotion, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
+            promotion: promotion ? promotion.toNumber() : null,
             ...produit
         }));
     }
@@ -86,8 +87,9 @@ export class ProduitService {
                 OrderItem: true
             }
         });
-        return produits.map(({price, ...produit}) => new ProduitEntity({
+        return produits.map(({price, promotion, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
+            promotion: promotion ? promotion.toNumber() : null,
             ...produit
         }));
     }
@@ -105,8 +107,9 @@ export class ProduitService {
                 }
             }
         });
-        return produits.map(({price, ...produit}) => new ProduitEntity({
+        return produits.map(({price, promotion, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
+            promotion: promotion ? promotion.toNumber() : null,
             ...produit
         }));
     }
@@ -119,8 +122,9 @@ export class ProduitService {
                 }
             }
         });
-        return produits.map(({price, ...produit}) => new ProduitEntity({
+        return produits.map(({price, promotion, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
+            promotion: promotion ? promotion.toNumber() : null,
             ...produit
         }));
     }
@@ -140,8 +144,9 @@ export class ProduitService {
             }
         })
 
-        return produits.map(({price, ...produit}) => new ProduitEntity({
+        return produits.map(({price, promotion, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
+            promotion: promotion ? promotion.toNumber() : null,
             ...produit
         }));
     }

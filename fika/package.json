@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prisma:seed:dev": "dotenv -e .env -- ts-node -r tsconfig-paths/register prisma/seed.ts",
-    "prisma:reset-seed:dev": "dotenv -e .env -- prisma migrate reset --force --skip-seed && npm run prisma:seed:dev",
+    "prisma:reset-seed:dev": "npx prisma migrate reset --force --skip-seed && npm run prisma:seed:dev",
     "prisma:deploy:dev": "npx prisma migrate deploy",
     "db:dev:rm": "docker compose rm fika -s -f -v",
     "db:dev:up": "docker compose up fika -d",

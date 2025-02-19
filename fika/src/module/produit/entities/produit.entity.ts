@@ -23,7 +23,7 @@ export class ProduitEntity{
     imagePath: string;
     price: number;
     isPlatDuJour: boolean;
-    promotion?: Decimal | null;
+    promotion?: number | null;
     createdAt: Date;
     updatedAt: Date;
     available: boolean;
