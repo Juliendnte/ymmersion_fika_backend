@@ -75,10 +75,17 @@ export class ProduitService {
     }
 
     async findAll() {
-        const produits = await this.prisma.produit.findMany();
-        return produits.map(({price, promotion, ...produit}) => new ProduitEntity({
+        const produits = await this.prisma.produit.findMany({
+            include: {
+                Category: true,
+                Type: true,
+            }
+        });
+        return produits.map(({price, promotion, idCategory, idType, Category, Type, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
-            promotion: promotion ? promotion.toNumber() : null,
+            promotion: promotion?.toNumber(),
+            category: Category?.name,
+            type: Type?.name,
             ...produit
         }));
     }
@@ -93,24 +100,30 @@ export class ProduitService {
                     include: {
                         Ingredient: true
                     }
-                }
+                },
+                Category: true,
+                Type: true,
             }
         })
 
         if (!produit) {
             throw new NotFoundException(ERROR.ResourceNotFound);
         }
-        const {price, promotion, Produit_Ingredient, ...product} = produit;
+        const {price, promotion, Produit_Ingredient, Category, Type, idCategory, idType, ...product} = produit;
         const ingredients = Produit_Ingredient.map(({Ingredient}) => new IngredientEntity({
             name: Ingredient.name,
             quantity: Ingredient.quantity,
             unit: Ingredient.unit,
         }));
+        const category = Category?.name
+        const type = Type?.name
 
         return new ProduitEntity({
             price: price.toNumber(),
-            promotion: promotion ? promotion.toNumber() : null,
+            promotion: promotion?.toNumber(),
             ingredients,
+            category,
+            type,
             ...product
         });
     }
@@ -172,7 +185,7 @@ export class ProduitService {
         });
         return produits.map(({price, promotion, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
-            promotion: promotion ? promotion.toNumber() : null,
+            promotion: promotion?.toNumber(),
             ...produit
         }));
     }
@@ -187,7 +200,7 @@ export class ProduitService {
         });
         return produits.map(({price, promotion, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
-            promotion: promotion ? promotion.toNumber() : null,
+            promotion: promotion?.toNumber(),
             ...produit
         }));
     }
@@ -209,7 +222,7 @@ export class ProduitService {
 
         return produits.map(({price, promotion, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
-            promotion: promotion ? promotion.toNumber() : null,
+            promotion: promotion?.toNumber(),
             ...produit
         }));
     }

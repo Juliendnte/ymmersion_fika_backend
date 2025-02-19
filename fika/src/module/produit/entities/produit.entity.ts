@@ -28,6 +28,8 @@ export class ProduitEntity{
     createdAt: Date;
     updatedAt: Date;
     available: boolean;
+    category: string;
+    type: string;
     ingredients: IngredientEntity[];
     Type: TypeEntity;
     User: UserEntity;

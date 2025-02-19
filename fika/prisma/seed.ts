@@ -116,7 +116,7 @@ async function main() {
             price: 12.99,
             isPlatDuJour: true,
             idCategory: 2,
-            idType: 2,
+            idType: 1,
             imagePath: "/produits/IMG_7056.jpg"
         },
         {
