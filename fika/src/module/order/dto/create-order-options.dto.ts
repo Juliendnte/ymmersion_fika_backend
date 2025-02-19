@@ -5,6 +5,10 @@ export class CreateOrderOptionsDto {
     @IsNotEmpty()
     idIngredient: number;
 
+    @IsNumber()
+    @IsNotEmpty()
+    idProduit: number;
+
     @IsBoolean()
     @IsNotEmpty()
     option: boolean;

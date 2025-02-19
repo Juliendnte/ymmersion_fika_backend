@@ -2,7 +2,7 @@ import {ConfigService} from "@nestjs/config";
 import {forwardRef, Module} from "@nestjs/common";
 import {PrismaModule} from "src/prisma/prisma.module";
 import {JwtAdminStrategy} from "src/module/auth/strategy/jwt.admin.strategy";
-import {JwtOptionalStrategy} from "src/module/auth/strategy/optional-jwt-auth.guards";
+import {JwtOptionalStrategy} from "src/module/auth/strategy/optional-jwt-auth.strategy";
 import {EmailModule} from "src/module/auth/email/email.module";
 import {AuthController} from "src/module/auth/auth.controller";
 import {AuthService} from "src/module/auth/auth.service";

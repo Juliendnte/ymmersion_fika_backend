@@ -4,7 +4,7 @@ import {
     Controller,
     Delete,
     Get, HttpException, HttpStatus, NotFoundException,
-    Param,
+    Param, ParseIntPipe,
     Patch,
     Post,
     UploadedFile,
@@ -90,7 +90,7 @@ export class ProduitController {
 
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
-    deleteProduit(@Param('id') id: number) {
-        return this.produitService.delete(id);
+    async deleteProduit(@Param('id', ParseIntPipe) id: number) {
+        await this.produitService.delete(id);
     }
 }

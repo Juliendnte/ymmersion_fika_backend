@@ -63,7 +63,6 @@ async function main() {
         });
     }
 
-
     const types = [
         {name: "Plats"},
         {name: "Boissons"},

@@ -16,6 +16,9 @@ export class UserService {
         const user = await this.prismaService.user.findUnique({
             where: {
                 uid
+            },
+            include: {
+                Role: true
             }
         })
         if (!user) {

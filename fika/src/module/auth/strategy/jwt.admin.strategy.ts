@@ -14,9 +14,6 @@ export class JwtAdminStrategy extends PassportStrategy(Strategy, 'jwt') {
     constructor(private userService: UserService) {
         const config = new ConfigService();
         const secretOrKey = config.get('JWT_SECRET');
-        if (!secretOrKey) {
-            throw new UnauthorizedException();
-        }
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             secretOrKey
