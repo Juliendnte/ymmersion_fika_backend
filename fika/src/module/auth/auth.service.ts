@@ -45,7 +45,7 @@ export class AuthService {
         const user = await this.prismaService.user.findUnique({
             where: {email: userDto.email},
         })
-        if (!user) {
+        if (user) {
             throw new ConflictException(ERROR.AlreadyExists)
         }
 
