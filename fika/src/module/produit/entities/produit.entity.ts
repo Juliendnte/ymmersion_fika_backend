@@ -2,6 +2,7 @@ import {UserEntity} from "src/module/user/entities/user.entity";
 import {TypeEntity} from "src/module/produit/entities/type.entity";
 import {CategoryEntity} from "src/module/produit/entities/category.entity";
 import {Decimal} from "@prisma/client/runtime/client";
+import {IngredientEntity} from "src/module/ingredient/entities/ingredient.entity";
 
 export class ProduitEntity{
     constructor({User, Category, Type, ...data} : Partial<ProduitEntity>) {
@@ -27,6 +28,7 @@ export class ProduitEntity{
     createdAt: Date;
     updatedAt: Date;
     available: boolean;
+    ingredients: IngredientEntity[];
     Type: TypeEntity;
     User: UserEntity;
     Category: CategoryEntity;

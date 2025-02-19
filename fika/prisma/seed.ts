@@ -79,6 +79,34 @@ async function main() {
         });
     }
 
+    const ingredients = [
+        {name: "Pâte Rigatoni", quantity: 500, unit: "g"},
+        {name: "Sauce tomate", quantity: 200, unit: "ml"},
+        {name: "Fromage râpé", quantity: 100, unit: "g"},
+        {name: "Bœuf haché", quantity: 300, unit: "g"},
+        {name: "Crème liquide", quantity: 150, unit: "ml"},
+        {name: "Chocolat noir", quantity: 200, unit: "g"},
+        {name: "Œufs", quantity: 3, unit: "pcs"},
+        {name: "Spéculos", quantity: 80, unit: "g"},
+        {name: "Kinder Bueno", quantity: 2, unit: "bars"},
+        {name: "Tranche de pain", quantity: 2, unit: "pcs"},
+        {name: "Laitue", quantity: 1, unit: "head"},
+        {name: "Crevettes", quantity: 150, unit: "g"},
+        {name: "Poulet", quantity: 200, unit: "g"},
+        {name: "Semoule", quantity: 150, unit: "g"},
+        {name: "Légumes frais", quantity: 200, unit: "g"},
+        {name: "Truite", quantity: 200, unit: "g"},
+        {name: "Riz", quantity: 150, unit: "g"},
+    ];
+
+    for (const ingredient of ingredients) {
+        await prisma.ingredient.upsert({
+            where: {name: ingredient.name},
+            update: {},
+            create: ingredient,
+        })
+    }
+
 
     const produitsAvecDescriptions = [
         {
@@ -201,6 +229,117 @@ async function main() {
             create: produit,
         });
     }
+
+    const produitIngredientsRelations = [
+        {
+            produitName: "Pates Rigatoni",
+            ingredients: [
+                {name: "Pâte Rigatoni", quantity: 200},
+                {name: "Sauce tomate", quantity: 100},
+                {name: "Fromage râpé", quantity: 50},
+            ],
+        },
+        {
+            produitName: "Fondant au chocolat",
+            ingredients: [
+                {name: "Chocolat noir", quantity: 120},
+                {name: "Œufs", quantity: 2},
+                {name: "Crème liquide", quantity: 50},
+            ],
+        },
+        {
+            produitName: "Tiramisu au poire spéculos",
+            ingredients: [
+                {name: "Spéculos", quantity: 50},
+                {name: "Crème liquide", quantity: 100},
+            ],
+        },
+        {
+            produitName: "Tiramisu kinder bueno",
+            ingredients: [
+                {name: "Kinder Bueno", quantity: 1},
+                {name: "Crème liquide", quantity: 100},
+            ],
+        },
+        {
+            produitName: "Burger Chicken",
+            ingredients: [
+                {name: "Poulet", quantity: 150},
+                {name: "Tranche de pain", quantity: 2},
+                {name: "Laitue", quantity: 50},
+            ],
+        },
+        {
+            produitName: "Pates au crevettes",
+            ingredients: [
+                {name: "Crevettes", quantity: 100},
+                {name: "Pâte Rigatoni", quantity: 200},
+                {name: "Sauce tomate", quantity: 80},
+            ],
+        },
+        {
+            produitName: "Taboulet",
+            ingredients: [
+                {name: "Semoule", quantity: 100},
+                {name: "Légumes frais", quantity: 100},
+            ],
+        },
+        {
+            produitName: "Pokéball Truite",
+            ingredients: [
+                {name: "Truite", quantity: 100},
+                {name: "Riz", quantity: 100},
+                {name: "Légumes frais", quantity: 50},
+            ],
+        },
+        {
+            produitName: "Salade César",
+            ingredients: [
+                {name: "Poulet", quantity: 100},
+                {name: "Laitue", quantity: 50},
+            ],
+        },
+    ];
+
+    for (const relation of produitIngredientsRelations) {
+        const produit = await prisma.produit.findUnique({
+            where: {name: relation.produitName},
+        });
+
+        if (!produit) {
+            console.log(`Produit '${relation.produitName}' non trouvé.`);
+            continue;
+        }
+
+        for (const ingredient of relation.ingredients) {
+            const ingredientRecord = await prisma.ingredient.findUnique({
+                where: {name: ingredient.name},
+            });
+
+            if (!ingredientRecord) {
+                console.log(`Ingrédient '${ingredient.name}' non trouvé.`);
+                continue;
+            }
+
+            await prisma.produitIngredient.upsert({
+                where: {
+                    idProduit_idIngredient: {
+                        idProduit: produit.id,
+                        idIngredient: ingredientRecord.id,
+                    },
+                },
+                update: {
+                    quantity: ingredient.quantity,
+                },
+                create: {
+                    idProduit: produit.id,
+                    idIngredient: ingredientRecord.id,
+                    quantity: ingredient.quantity,
+                },
+            });
+        }
+    }
+
 
     console.log("Seeding completed!");
 }

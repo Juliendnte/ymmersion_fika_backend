@@ -5,13 +5,19 @@ import {ERROR} from "src/common/constants/error.constants";
 import {ProduitEntity} from "src/module/produit/entities/produit.entity";
 import * as fs from 'fs-extra';
 import {join} from 'path';
+import {IngredientEntity} from "src/module/ingredient/entities/ingredient.entity";
 
 @Injectable()
 export class ProduitService {
     constructor(private prisma: PrismaService) {
     }
 
-    async create({type, category, ingredientsProduits, ...produit}: CreateProduitDto, uidUser: string, file: Express.Multer.File) {
+    async create({
+                     type,
+                     category,
+                     ingredientsProduits,
+                     ...produit
+                 }: CreateProduitDto, uidUser: string, file: Express.Multer.File) {
         const finalPath = join(__dirname, '../../../uploads', file.filename);
         return this.prisma.$transaction(async (prisma) => {
             const Type = await prisma.type.findUnique({
@@ -78,15 +84,35 @@ export class ProduitService {
     }
 
     async findById(id: number) {
-        const produit = await this.prisma.produit.findUnique({
+        let produit = await this.prisma.produit.findUnique({
             where: {
                 id
+            },
+            include: {
+                Produit_Ingredient: {
+                    include: {
+                        Ingredient: true
+                    }
+                }
             }
         })
+
         if (!produit) {
             throw new NotFoundException(ERROR.ResourceNotFound);
         }
-        return produit;
+        const {price, promotion, Produit_Ingredient, ...product} = produit;
+        const ingredients = Produit_Ingredient.map(({Ingredient}) => new IngredientEntity({
+            name: Ingredient.name,
+            quantity: Ingredient.quantity,
+            unit: Ingredient.unit,
+        }));
+
+        return new ProduitEntity({
+            price: price.toNumber(),
+            promotion: promotion ? promotion.toNumber() : null,
+            ingredients,
+            ...product
+        });
     }
 
     async findPopular() {
