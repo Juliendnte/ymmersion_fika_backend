@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {PrismaService} from "src/prisma/prisma.service";
 import {CreateIngredientDto} from "src/module/ingredient/dto/create-ingredient.dto";
+import {IngredientEntity} from "src/module/ingredient/entities/ingredient.entity";
 
 @Injectable()
 export class IngredientService {
@@ -25,7 +26,8 @@ export class IngredientService {
         })
     }
 
-    getAllIngredients() {
-        return this.prismaService.ingredient.findMany()
+    async getAllIngredients() {
+        const ingredients = await this.prismaService.ingredient.findMany();
+        return ingredients.map(ingredient => new IngredientEntity(ingredient));
     }
 }

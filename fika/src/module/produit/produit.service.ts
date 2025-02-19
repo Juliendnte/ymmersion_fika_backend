@@ -11,7 +11,7 @@ export class ProduitService {
     constructor(private prisma: PrismaService) {
     }
 
-    async create({type, category, ...produit}: CreateProduitDto, uidUser: string, file: Express.Multer.File) {
+    async create({type, category, ingredientsProduits, ...produit}: CreateProduitDto, uidUser: string, file: Express.Multer.File) {
         const finalPath = join(__dirname, '../../../uploads', file.filename);
         return this.prisma.$transaction(async (prisma) => {
             const Type = await prisma.type.findUnique({
@@ -45,6 +45,20 @@ export class ProduitService {
                     uidUser
                 }
             })
+
+            if (ingredientsProduits && ingredientsProduits.length > 0) {
+                const ingredientRelations = ingredientsProduits.map((ingredientProduit) => ({
+                    idProduit: product.id,
+                    idIngredient: ingredientProduit.idIngredient,
+                    quantity: ingredientProduit.quantity,
+                }));
+
+                await prisma.produitIngredient.createMany({
+                    data: ingredientRelations,
+                });
+            }
+
+
             try {
                 await fs.move(file.path, finalPath);
                 return product;
@@ -56,6 +70,7 @@ export class ProduitService {
 
     async findAll() {
         const produits = await this.prisma.produit.findMany();
+        console.log(produits);
         return produits.map(({price, promotion, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
             promotion: promotion ? promotion.toNumber() : null,
@@ -76,7 +91,7 @@ export class ProduitService {
     }
 
     async findPopular() {
-        const produits = await this.prisma.produit.findMany({
+        let produits = await this.prisma.produit.findMany({
             take: 3,
             orderBy: {
                 OrderItem: {
@@ -87,11 +102,34 @@ export class ProduitService {
                 OrderItem: true
             }
         });
-        return produits.map(({price, promotion, ...produit}) => new ProduitEntity({
+        const produitsPopular = produits.map(({price, promotion, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
             promotion: promotion ? promotion.toNumber() : null,
             ...produit
         }));
+
+        produits = await this.prisma.produit.findMany({
+            take: 3,
+            orderBy: {
+                OrderItem: {
+                    _count: 'asc'
+                }
+            },
+            include: {
+                OrderItem: true
+            }
+        })
+
+        const produitsUnpopular = produits.map(({price, promotion, ...produit}) => new ProduitEntity({
+            price: price.toNumber(),
+            promotion: promotion ? promotion.toNumber() : null,
+            ...produit
+        }))
+
+        return {
+            produitsPopular,
+            produitsUnpopular
+        }
     }
 
     async findByPromo() {

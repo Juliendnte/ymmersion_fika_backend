@@ -114,6 +114,7 @@ async function main() {
             uidUser: userAdmin.uid,
             description: "Un poulet parfumé et croustillant préparé avec des épices locales.",
             price: 10.99,
+            available: true,
             isPlatDuJour: true,
             idType: 1, // Id du type correspondant
         },
@@ -122,6 +123,7 @@ async function main() {
             uidUser: userAdmin.uid,
             description: "Une lasagne riche en légumes et gratinée avec du fromage.",
             price: 8.99,
+            available: true,
             isPlatDuJour: true,
             idType: 1,
         },
@@ -138,6 +140,7 @@ async function main() {
             uidUser: userAdmin.uid,
             description: "Une soupe traditionnelle et savoureuse.",
             price: 5.99,
+            available: true,
             isPlatDuJour: true,
             idType: 1,
         },
@@ -174,6 +177,7 @@ async function main() {
             uidUser: userMember.uid,
             description: "Un burger de qualité supérieure avec un pain artisanal.",
             price: 9.99,
+            available: true,
             promotion: 15, // Réduction de 15%
             idCategory: 3, // Id catégorie correspondant
             idType: 1, // Type principal
@@ -183,6 +187,7 @@ async function main() {
             uidUser: userMember.uid,
             description: "Une boisson parfaite pour se réchauffer.",
             price: 3.50,
+            available: true,
             promotion: 10, // Réduction de 10%
             idCategory: 2,
             idType: 2,
@@ -201,6 +206,7 @@ async function main() {
             uidUser: userMember.uid,
             description: "Sandwich frais et équilibré avec une touche de pesto.",
             price: 7.49,
+            available: true,
             promotion: 25, // Réduction de 25%
             idCategory: 3,
             idType: 3,
@@ -210,6 +216,7 @@ async function main() {
             uidUser: userMember.uid,
             description: "Une crêpe fine nappée de chocolat fondant.",
             price: 4.50,
+            available: true,
             promotion: 15, // Réduction de 15%
             idCategory: 4,
             idType: 4,
@@ -219,6 +226,7 @@ async function main() {
             uidUser: userMember.uid,
             description: "Une salade fraîche avec du poulet et une sauce César maison.",
             price: 8.50,
+            available: true,
             promotion: 10, // Réduction de 10%
             idCategory: 1,
             idType: 1,
@@ -228,6 +236,7 @@ async function main() {
             uidUser: userMember.uid,
             description: "Un mélange de fruits exotiques pour une pause rafraîchissante.",
             price: 5.99,
+            available: true,
             promotion: 20, // Réduction de 20%
             idCategory: 2,
             idType: 2,
@@ -237,6 +246,7 @@ async function main() {
             uidUser: userMember.uid,
             description: "Un dessert fondant et irrésistible.",
             price: 3.99,
+            available: true,
             promotion: 25, // Réduction de 25%
             idCategory: 4,
             idType: 4,

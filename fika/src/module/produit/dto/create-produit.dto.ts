@@ -1,4 +1,5 @@
 import {IsBoolean, IsDecimal, IsInt, IsNotEmpty, IsOptional, IsString} from "class-validator";
+import {CreateProduitIngredientDto} from "src/module/produit/dto/create-produit-ingredient.dto";
 
 export class CreateProduitDto {
     @IsNotEmpty()
@@ -28,4 +29,7 @@ export class CreateProduitDto {
     @IsNotEmpty()
     @IsString()
     category: string;
+
+    @IsNotEmpty()
+    ingredientsProduits: CreateProduitIngredientDto[];
 }

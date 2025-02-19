@@ -31,6 +31,7 @@ CREATE TABLE "products" (
     "price" DECIMAL(10,2) NOT NULL,
     "isPlatDuJour" BOOLEAN NOT NULL DEFAULT false,
     "promotion" DECIMAL(10,2),
+    "available" BOOLEAN NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "idType" INTEGER,
