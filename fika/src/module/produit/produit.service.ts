@@ -9,8 +9,7 @@ export class ProduitService {
     constructor(private prisma: PrismaService) {
     }
 
-    async create({type, category, ...produit}: CreateProduitDto,
-                 uidUser: string) {
+    async create({type, category, ...produit}: CreateProduitDto, uidUser: string) {
         const Type = await this.prisma.type.findUnique({
             where: {
                 name: type,
@@ -43,8 +42,13 @@ export class ProduitService {
         })
     }
 
-    findById(id: number) {
-        const produit = this.prisma.produit.findUnique({
+    async findAll(){
+        const produits = await this.prisma.produit.findMany();
+        return produits.map(produit => new ProduitEntity(produit));
+    }
+
+    async findById(id: number) {
+        const produit = await this.prisma.produit.findUnique({
             where: {
                 id
             }
@@ -53,6 +57,48 @@ export class ProduitService {
             throw new NotFoundException(ERROR.ResourceNotFound);
         }
         return produit;
+    }
+
+    async findPopular() {
+        const produits = await this.prisma.produit.findMany({
+            take: 3,
+            orderBy: {
+                OrderItem: {
+                    _count: 'desc'
+                }
+            },
+            include: {
+                OrderItem: true
+            }
+        });
+        return produits.map(produit => new ProduitEntity(produit));
+    }
+
+    async findByPromo(){
+        const produits = await this.prisma.produit.findMany({
+            where: {
+                promotion: {
+                    not: null
+                },
+                AND: {
+                    promotion: {
+                        not: 0
+                    }
+                }
+            }
+        });
+        return produits.map(produit => new ProduitEntity(produit));
+    }
+
+    async findByPlatDuJour(){
+        const produits = await this.prisma.produit.findMany({
+            where: {
+                isPlatDuJour: {
+                    not: false
+                }
+            }
+        });
+        return produits.map(produit => new ProduitEntity(produit));
     }
 
     async findByType(type: string) {
@@ -72,4 +118,25 @@ export class ProduitService {
 
         return produits.map(produit => new ProduitEntity(produit))
     }
+
+    update(id: number, updateProduitDto: CreateProduitDto) {
+        return this.prisma.produit.update({
+            where: {
+                id
+            },
+            data: {
+                ...updateProduitDto
+            }
+        })
+    }
+
+    delete(id: number) {
+        return this.prisma.produit.delete({
+            where: {
+                id
+            }
+        })
+    }
+
+
 }
