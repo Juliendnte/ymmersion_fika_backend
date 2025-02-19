@@ -56,7 +56,6 @@ export class ProduitService {
 
     async findAll() {
         const produits = await this.prisma.produit.findMany();
-        console.log(produits);
         return produits.map(({price, ...produit}) => new ProduitEntity({
             price: price.toNumber(),
             ...produit

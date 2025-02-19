@@ -26,6 +26,7 @@ export class ProduitEntity{
     promotion?: Decimal | null;
     createdAt: Date;
     updatedAt: Date;
+    available: boolean;
     Type: TypeEntity;
     User: UserEntity;
     Category: CategoryEntity;
