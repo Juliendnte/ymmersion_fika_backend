@@ -21,7 +21,7 @@ export class ProduitEntity{
     name: string;
     description?: string | null;
     imagePath: string;
-    price: Decimal;
+    price: number;
     isPlatDuJour: boolean;
     promotion?: Decimal | null;
     createdAt: Date;

@@ -4,7 +4,7 @@ import {CreateProduitDto} from "src/module/produit/dto/create-produit.dto";
 import {ERROR} from "src/common/constants/error.constants";
 import {ProduitEntity} from "src/module/produit/entities/produit.entity";
 import * as fs from 'fs-extra';
-import { join } from 'path';
+import {join} from 'path';
 
 @Injectable()
 export class ProduitService {
@@ -13,7 +13,7 @@ export class ProduitService {
 
     async create({type, category, ...produit}: CreateProduitDto, uidUser: string, file: Express.Multer.File) {
         const finalPath = join(__dirname, '../../../uploads', file.filename);
-        return this.prisma.$transaction(async (prisma) =>{
+        return this.prisma.$transaction(async (prisma) => {
             const Type = await prisma.type.findUnique({
                 where: {
                     name: type,
@@ -56,7 +56,11 @@ export class ProduitService {
 
     async findAll() {
         const produits = await this.prisma.produit.findMany();
-        return produits.map(produit => new ProduitEntity(produit));
+        console.log(produits);
+        return produits.map(({price, ...produit}) => new ProduitEntity({
+            price: price.toNumber(),
+            ...produit
+        }));
     }
 
     async findById(id: number) {
@@ -83,7 +87,10 @@ export class ProduitService {
                 OrderItem: true
             }
         });
-        return produits.map(produit => new ProduitEntity(produit));
+        return produits.map(({price, ...produit}) => new ProduitEntity({
+            price: price.toNumber(),
+            ...produit
+        }));
     }
 
     async findByPromo() {
@@ -99,7 +106,10 @@ export class ProduitService {
                 }
             }
         });
-        return produits.map(produit => new ProduitEntity(produit));
+        return produits.map(({price, ...produit}) => new ProduitEntity({
+            price: price.toNumber(),
+            ...produit
+        }));
     }
 
     async findByPlatDuJour() {
@@ -110,7 +120,10 @@ export class ProduitService {
                 }
             }
         });
-        return produits.map(produit => new ProduitEntity(produit));
+        return produits.map(({price, ...produit}) => new ProduitEntity({
+            price: price.toNumber(),
+            ...produit
+        }));
     }
 
     async findByType(type: string) {
@@ -128,7 +141,10 @@ export class ProduitService {
             }
         })
 
-        return produits.map(produit => new ProduitEntity(produit))
+        return produits.map(({price, ...produit}) => new ProduitEntity({
+            price: price.toNumber(),
+            ...produit
+        }));
     }
 
     update(id: number, updateProduitDto: CreateProduitDto) {
