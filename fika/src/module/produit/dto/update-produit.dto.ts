@@ -1,8 +1,8 @@
-import {IsBoolean, IsDecimal, IsInt, IsNotEmpty, IsOptional, IsString} from "class-validator";
+import {IsBoolean, IsDecimal, IsInt,  IsOptional, IsString} from "class-validator";
 import {CreateProduitIngredientDto} from "src/module/produit/dto/create-produit-ingredient.dto";
 
-export class CreateProduitDto {
-    @IsNotEmpty()
+export class UpdateProduitDto{
+    @IsOptional()
     @IsString()
     name: string;
 
@@ -10,26 +10,26 @@ export class CreateProduitDto {
     @IsString()
     description?: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsInt()
     price: number;
 
     @IsOptional()
     @IsBoolean()
-    isPlatDuJour: boolean ;
+    isPlatDuJour: boolean;
 
     @IsOptional()
     @IsDecimal()
     promotion: number;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     type: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     category: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     ingredientsProduits: CreateProduitIngredientDto[];
 }

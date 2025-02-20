@@ -1,9 +1,10 @@
 import {IsDecimal, IsNotEmpty, IsNumber, IsOptional} from "class-validator";
+import {IngredientEntity} from "src/module/ingredient/entities/ingredient.entity";
 
 export class CreateOrderItemsDto {
     @IsNumber()
     @IsOptional()
-    quantity: number;
+    quantity: number = 1;
 
     @IsDecimal()
     @IsNotEmpty()
@@ -12,4 +13,7 @@ export class CreateOrderItemsDto {
     @IsNumber()
     @IsNotEmpty()
     idProduit: number;
+
+    @IsNotEmpty()
+    ingredients: IngredientEntity[]
 }
