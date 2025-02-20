@@ -47,7 +47,24 @@ async function main() {
         },
     });
 
-    // Seed more categories (Fake Data)
+    const status = [
+        {
+            name: "En attente",
+        },  {
+            name: "En cours",
+        },{
+            name: "Prête",
+        },
+    ]
+
+    for (const statu of status){
+        await prisma.orderStatus.upsert({
+            where: {name: statu.name},
+            update: {},
+            create: statu
+        })
+    }
+
     const categories = [
         {name: "Plats Chauds Y-novants"},
         {name: "Les salades Y-novante"},

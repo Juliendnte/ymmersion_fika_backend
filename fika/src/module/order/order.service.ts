@@ -9,56 +9,97 @@ export class OrderService {
     constructor(private prismaService: PrismaService) {
     }
 
-    async createOrder(uidUser: string, {OrdersItems, OrdersOptions, ...produit}: CreateOrderDto) {
+    async createOrder(uidUser: string, {orderItems, ...produit}: CreateOrderDto) {
         const status = await this.prismaService.orderStatus.findUnique({
             where: {
-                name: produit.status
+                name: "En attente"
             }
         })
         if (!status) {
-            throw new BadRequestException(ERROR.InvalidInputFormat)
+            throw new BadRequestException(ERROR.ErrorSystem)
         }
 
-        const orders = OrdersOptions?.map(async option => await this.prismaService.option.findFirst({
-            where: {
-                option: false,
-                available: true,
-                idIngredient: option.idIngredient,
-                idProduit: option.idProduit,
-            }
-        }));
+        const missingIngredients = await Promise.all(
+            orderItems.map(async order => {
+                if (order) {
+                    const produit = await this.prismaService.produit.findUnique({
+                        where: {id: order.idProduit},
+                        include: {Produit_Ingredient: true}
+                    })
+                    if (!produit) {
+                        throw new NotFoundException(ERROR.ResourceNotFound)
+                    }
+                    const baseIngredients = produit.Produit_Ingredient.map(ingr => ingr.idIngredient);
+                    const orderIngredients = order.ingredients.map(ingr => ingr.id);
+                    const missing = baseIngredients.filter(id => !orderIngredients.includes(id));
+                    if( missing.length > 0 ){
+                        return missing.map(id => ({
+                            idProduit: order.idProduit,
+                            idIngredient: id
+                        }))
+                    }
+                }
+            }))
+        const flattenedMissingIngredients = missingIngredients.flat();
+        const orderOptions = flattenedMissingIngredients.length > 0 ? flattenedMissingIngredients : [];
+
+        const orders = await Promise.all(
+            orderOptions?.filter(option => option !== undefined).map(async option => await this.prismaService.option.findFirst({
+                where: {
+                    option: false,
+                    available: true,
+                    idIngredient: option.idIngredient,
+                    idProduit: option.idProduit,
+                }
+            })) || []
+        );
         if (!orders || orders.length === 0) {
             throw new BadRequestException(ERROR.InvalidInputFormat)
         }
-        /*
-        orders.map(option => this.prismaService.option.upsert({
-            where: {
-                id: option.id
-            },
-            update: {},
-            create: {
 
+
+        const OrdersOption = await Promise.all(orders.map(option => {
+                if (option) {
+                    return this.prismaService.option.upsert({
+                        where: {
+                            id: option.id
+                        },
+                        update: {},
+                        create: {
+                            option: false,
+                            idIngredient: option.idIngredient,
+                            idProduit: option.idProduit,
+                            available: true,
+                            price: null
+                        }
+                    })
+                }
             }
-        }))*/
+        ))
 
-        const createOrder = await this.prismaService.order.create({
+        await this.prismaService.order.create({
             data: {
                 totalPrice: produit.totalPrice,
                 idStatus: status.id,
                 uidUser,
                 OrderItems: {
-                    create: OrdersItems.map(item => ({
+                    create: orderItems.map(item => ({
                         quantity: item.quantity,
                         unitPrice: item.price,
                         idProduit: item.idProduit
                     }))
                 },
                 OrderOption: {
-
+                    create: OrdersOption?.filter((item) => item != null)
+                        .map((item) => ({
+                                    idOption: item?.id,
+                                    idIngredient: item?.idIngredient,
+                                }
+                            )
+                        )
                 }
             }
         })
-
     }
 
     async getOrderById(orderId: number) {
