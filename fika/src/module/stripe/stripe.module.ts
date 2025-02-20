@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StripeController } from './stripe.controller';
 import { StripeService } from './stripe.service';
 
+
 @Module({})
 export class StripeModule {
     static forRootAsync(): DynamicModule {
@@ -19,6 +20,7 @@ export class StripeModule {
                     inject: [ConfigService],
                 },
             ],
+            exports: [StripeService, 'STRIPE_API_KEY']
         };
     }
 }
