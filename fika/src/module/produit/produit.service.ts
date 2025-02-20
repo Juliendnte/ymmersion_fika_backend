@@ -18,8 +18,54 @@ export class ProduitService {
                      category,
                      ingredientsProduits,
                      ...produit
-                 }: CreateProduitDto, uidUser: string, file: Express.Multer.File) {
-        const finalPath = join(__dirname, '../../../uploads', file.filename);
+                 }: CreateProduitDto, uidUser: string, file: Express.Multer.File | null) {
+        if (!file){
+            const Type = await this.prisma.type.findUnique({
+                where: {
+                    name: type,
+                }
+            })
+            if (!Type) {
+                throw new BadRequestException(ERROR.InvalidInputFormat);
+            }
+
+            const Category = await this.prisma.category.findUnique({
+                where: {
+                    name: category,
+                }
+            })
+            if (!Category) {
+                throw new BadRequestException(ERROR.InvalidInputFormat);
+            }
+
+            const product = await this.prisma.produit.create({
+                data: {
+                    name: produit.name,
+                    description: produit.description,
+                    price: produit.price,
+                    isPlatDuJour: produit.isPlatDuJour,
+                    promotion: produit.promotion ? produit.promotion : null,
+                    idType: Type.id,
+                    idCategory: Category.id,
+                    imagePath: '/uploads' + "defaults.png",
+                    uidUser
+                }
+            })
+
+            if (ingredientsProduits && ingredientsProduits.length > 0) {
+                const ingredientRelations = ingredientsProduits.map((ingredientProduit) => ({
+                    idProduit: product.id,
+                    idIngredient: ingredientProduit.idIngredient,
+                    quantity: ingredientProduit.quantity,
+                }));
+
+                await this.prisma.produitIngredient.createMany({
+                    data: ingredientRelations,
+                });
+            }
+            return
+        }
+        const finalPath = join(__dirname, '../../../uploads/produits', file.filename);
         return this.prisma.$transaction(async (prisma) => {
             const Type = await prisma.type.findUnique({
                 where: {
@@ -39,6 +85,8 @@ export class ProduitService {
                 throw new BadRequestException(ERROR.InvalidInputFormat);
             }
 
+
+
             const product = await prisma.produit.create({
                 data: {
                     name: produit.name,
@@ -48,7 +96,7 @@ export class ProduitService {
                     promotion: produit.promotion ? produit.promotion : null,
                     idType: Type.id,
                     idCategory: Category.id,
-                    imagePath: '/uploads' + file.filename,
+                    imagePath: '/projects/' + file.filename,
                     uidUser
                 }
             })

@@ -21,7 +21,6 @@ export class ProduitEntity{
 
     name: string;
     description?: string | null;
-    imagePath: string;
     price: number;
     isPlatDuJour: boolean;
     promotion?: number | null;

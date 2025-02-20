@@ -3,7 +3,7 @@ import {
     Body, Catch,
     Controller,
     Delete,
-    Get, HttpException, HttpStatus, NotFoundException,
+    Get, HttpException, HttpStatus, InternalServerErrorException, NotFoundException,
     Param, ParseIntPipe,
     Patch,
     Post,
@@ -18,10 +18,11 @@ import {GetUser} from "src/common/decorators/get-user.decorator";
 import {User} from "@prisma/client";
 import {diskStorage} from 'multer';
 import {FileInterceptor} from "@nestjs/platform-express";
-import {extname} from 'path';
+import {extname, join} from 'path';
 import {ERROR} from "src/common/constants/error.constants";
 import {HttpExceptionFilter} from "src/common/filters/http-exception.filter";
 import {UpdateProduitDto} from "src/module/produit/dto/update-produit.dto";
+import * as fs from "fs-extra";
 
 @Controller('produits')
 @Catch(HttpExceptionFilter)
@@ -32,27 +33,48 @@ export class ProduitController {
     @Post()
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(
-        FileInterceptor('file', {
+        FileInterceptor('imagePath', {
             storage: diskStorage({
                 destination: './temp',
-                filename: (req, file, cb) => {
+                filename: (req, imagePath, cb) => {
                     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                    cb(null, uniqueSuffix + extname(file.originalname));
+                    cb(null, uniqueSuffix + extname(imagePath.originalname));
                 },
             }),
         }),
     )
-    async createProduit(@UploadedFile() file: Express.Multer.File, @Body() createProduitDto: CreateProduitDto, @GetUser() user: User) {
-        if (!file) {
-            throw new NotFoundException(ERROR.InvalidInputFormat);
-        }
+    createProduit(@UploadedFile() imagePath: Express.Multer.File, @Body() createProduitDto: CreateProduitDto, @GetUser() user: User) {
         try {
-            const entity = await this.produitService.create(createProduitDto, user.uid, file);
-            return {message: 'File uploaded and produit created', entity};
+            return this.produitService.create(createProduitDto, user.uid, imagePath);
         } catch (error) {
-            throw new BadRequestException(ERROR.ErrorSystem);
+            throw new InternalServerErrorException(ERROR.ErrorSystem);
         }
     }
+
+    /*
+    @UseInterceptors(
+        FileInterceptor('imagePath', {
+            storage: diskStorage({
+                destination: './temp',
+                filename: (req, imagePath, cb) => {
+                    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+                    cb(null, uniqueSuffix + extname(imagePath.originalname));
+                },
+            }),
+        }),
+    )
+    @Post("test")
+    async testupload(@UploadedFile() imagePath: Express.Multer.File) {
+        const finalPath = join(__dirname, '../../../uploads/produits', imagePath.filename);
+        try {
+            await fs.move(imagePath.path, finalPath);
+            return finalPath;
+        } catch (error) {
+            throw new Error('File move failed, rolling back entity creation');
+        }
+    }
+    
+     */
 
     @Get()
     getProduits() {
