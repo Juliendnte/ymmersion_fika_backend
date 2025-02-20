@@ -16,7 +16,7 @@ export class CreateProduitDto {
 
     @IsOptional()
     @IsBoolean()
-    isPlatDuJour: boolean;
+    isPlatDuJour: boolean ;
 
     @IsOptional()
     @IsDecimal()
