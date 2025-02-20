@@ -21,6 +21,7 @@ import {FileInterceptor} from "@nestjs/platform-express";
 import {extname} from 'path';
 import {ERROR} from "src/common/constants/error.constants";
 import {HttpExceptionFilter} from "src/common/filters/http-exception.filter";
+import {UpdateProduitDto} from "src/module/produit/dto/update-produit.dto";
 
 @Controller('produits')
 @Catch(HttpExceptionFilter)
@@ -84,7 +85,7 @@ export class ProduitController {
     }
 
     @Patch(':id')
-    updateProduit(@Param('id') id: number, @Body() updateProduitDto: CreateProduitDto) {
+    updateProduit(@Param('id', ParseIntPipe) id: number, @Body() updateProduitDto: UpdateProduitDto) {
         return this.produitService.update(id, updateProduitDto);
     }
 

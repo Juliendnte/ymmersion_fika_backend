@@ -6,6 +6,7 @@ import {ProduitEntity} from "src/module/produit/entities/produit.entity";
 import * as fs from 'fs-extra';
 import {join} from 'path';
 import {IngredientEntity} from "src/module/ingredient/entities/ingredient.entity";
+import {UpdateProduitDto} from "src/module/produit/dto/update-produit.dto";
 
 @Injectable()
 export class ProduitService {
@@ -227,7 +228,7 @@ export class ProduitService {
         }));
     }
 
-    update(id: number, updateProduitDto: CreateProduitDto) {
+    update(id: number, updateProduitDto: UpdateProduitDto) {
         return this.prisma.produit.update({
             where: {
                 id
