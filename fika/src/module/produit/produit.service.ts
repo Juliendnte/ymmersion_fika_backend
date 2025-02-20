@@ -276,7 +276,23 @@ export class ProduitService {
         }));
     }
 
-    update(id: number, updateProduitDto: UpdateProduitDto) {
+    update(id: number, {ingredientsProduits, ...updateProduitDto}: UpdateProduitDto) {
+        if (ingredientsProduits && ingredientsProduits.length > 0) {
+            ingredientsProduits.map(async ingredient => {
+                await this.prisma.produitIngredient.upsert({
+                    where: {
+                        idProduit_idIngredient: { idProduit: id, idIngredient: ingredient.idIngredient }
+                    },
+                    update: {
+                        quantity: ingredient.quantity
+                    },
+                    create: {
+                        idProduit: id,
+                        ...ingredient
+                    }
+                })
+            })
+        }
         return this.prisma.produit.update({
             where: {
                 id

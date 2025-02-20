@@ -73,7 +73,7 @@ export class ProduitController {
             throw new Error('File move failed, rolling back entity creation');
         }
     }
-    
+
      */
 
     @Get()
