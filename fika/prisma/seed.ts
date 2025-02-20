@@ -272,7 +272,7 @@ async function main() {
             promotion: 0, // Réduction de 25%
             idCategory: 5,
             idType: 2,
-            imagePath: "/produits/smoothie_fruit_rouges.jpg"
+            imagePath: "/produits/smoothie_fruits_rouges.jpg"
         },
         {
             name: "Thé glacé peche",
@@ -283,7 +283,7 @@ async function main() {
             promotion: 0, // Réduction de 25%
             idCategory: 5,
             idType: 2,
-            imagePath: "/produits/the_glace_peche.jpg"
+            imagePath: "/produits/the_glace.jpg"
         },
         {
             name: "Thé à la menthe",
