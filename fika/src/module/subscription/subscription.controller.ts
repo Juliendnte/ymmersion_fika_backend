@@ -1,4 +1,15 @@
-import { Controller } from '@nestjs/common';
+import {Body, Controller, Post, } from '@nestjs/common';
 
-@Controller('subscription')
-export class SubscriptionController {}
+import {SubscriptionService} from './subscription.service';
+
+@Controller('subscriptions')
+export class SubscriptionController {
+    constructor(private subscriptionService: SubscriptionService) {
+    }
+
+    @Post('pay')
+    async pay(@Body() body: any) {
+        const {amount, currency, paymentMethodId} = body;
+        return this.subscriptionService.createPaymentIntent(amount, currency, paymentMethodId);
+    }
+}

@@ -8,12 +8,15 @@ import {UserModule} from "src/module/user/user.module";
 import {AuthModule} from "src/module/auth/auth.module";
 import {ConfigModule} from "@nestjs/config";
 import {UploadModule} from './uploads/upload.module';
+import configs from "./module/config";
+
 @Module({
-    imports: [ConfigModule.forRoot({
-        isGlobal: true,
-        envFilePath: '.env'
-    }), AuthModule, UserModule, ProduitModule, OrderModule, IngredientModule, UploadModule, ],
-    providers: [OrderService, IngredientService, ],
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+            load: [configs],
+        }), AuthModule, UserModule, ProduitModule, OrderModule, IngredientModule, UploadModule,],
+    providers: [OrderService, IngredientService,],
     controllers: [],
 })
 export class AppModule {
