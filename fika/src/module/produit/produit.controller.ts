@@ -51,7 +51,6 @@ export class ProduitController {
         }
     }
 
-    /*
     @UseInterceptors(
         FileInterceptor('imagePath', {
             storage: diskStorage({
@@ -74,7 +73,6 @@ export class ProduitController {
         }
     }
 
-     */
 
     @Get()
     getProduits() {

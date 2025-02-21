@@ -15,6 +15,7 @@ export class OrderService {
                 name: "En attente"
             }
         })
+        console.log(status);
         if (!status) {
             throw new BadRequestException(ERROR.ErrorSystem)
         }
@@ -26,6 +27,7 @@ export class OrderService {
                         where: {id: order.idProduit},
                         include: {Produit_Ingredient: true}
                     })
+                    console.log(produit)
                     if (!produit) {
                         throw new NotFoundException(ERROR.ResourceNotFound)
                     }
@@ -53,19 +55,13 @@ export class OrderService {
                 }
             })) || []
         );
+        console.log(orders);
+        let OrdersOption: any[]
         if (!orders || orders.length === 0) {
-            throw new BadRequestException(ERROR.InvalidInputFormat)
-        }
-
-
-        const OrdersOption = await Promise.all(orders.map(option => {
-                if (option) {
-                    return this.prismaService.option.upsert({
-                        where: {
-                            id: option.id
-                        },
-                        update: {},
-                        create: {
+            OrdersOption = await Promise.all(
+                orderOptions?.filter(option => option !== undefined).map(async option =>
+                    await this.prismaService.option.create({
+                        data: {
                             option: false,
                             idIngredient: option.idIngredient,
                             idProduit: option.idProduit,
@@ -73,9 +69,30 @@ export class OrderService {
                             price: null
                         }
                     })
+                )
+            )
+        }else {
+            OrdersOption = await Promise.all(orders.map(option => {
+                    if (option) {
+                        return this.prismaService.option.upsert({
+                            where: {
+                                id: option.id
+                            },
+                            update: {},
+                            create: {
+                                option: false,
+                                idIngredient: option.idIngredient,
+                                idProduit: option.idProduit,
+                                available: true,
+                                price: null
+                            }
+                        })
+                    }
                 }
-            }
-        ))
+            ))
+        }
+
+
 
         await this.prismaService.order.create({
             data: {
@@ -112,5 +129,9 @@ export class OrderService {
             throw new NotFoundException(ERROR.ResourceNotFound);
         }
         return Order;
+    }
+
+    async getAllOrder(){
+        return this.prismaService.order.findMany({})
     }
 }
