@@ -15,7 +15,7 @@ export class OrderService {
                 name: "En attente"
             }
         })
-        console.log(status);
+
         if (!status) {
             throw new BadRequestException(ERROR.ErrorSystem)
         }
@@ -27,7 +27,7 @@ export class OrderService {
                         where: {id: order.idProduit},
                         include: {Produit_Ingredient: true}
                     })
-                    console.log(produit)
+
                     if (!produit) {
                         throw new NotFoundException(ERROR.ResourceNotFound)
                     }
@@ -55,7 +55,7 @@ export class OrderService {
                 }
             })) || []
         );
-        console.log(orders);
+
         let OrdersOption: any[]
         if (!orders || orders.length === 0) {
             OrdersOption = await Promise.all(
@@ -91,8 +91,6 @@ export class OrderService {
                 }
             ))
         }
-
-
 
         await this.prismaService.order.create({
             data: {

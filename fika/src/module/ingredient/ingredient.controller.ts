@@ -21,4 +21,9 @@ export class IngredientController {
     getIngredients() {
         return this.ingredientService.getAllIngredients()
     }
+
+    @Get(':id')
+    getIngredientById(@Param('id', ParseIntPipe) id: number) {
+        return this.ingredientService.getIngredient(id);
+    }
 }
