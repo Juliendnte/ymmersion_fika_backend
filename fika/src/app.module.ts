@@ -9,13 +9,14 @@ import {AuthModule} from "src/module/auth/auth.module";
 import {ConfigModule} from "@nestjs/config";
 import {UploadModule} from './uploads/upload.module';
 import configs from "./module/config";
+import {SubscriptionModule} from "src/module/subscription/subscription.module";
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
             load: [configs],
-        }), AuthModule, UserModule, ProduitModule, OrderModule, IngredientModule, UploadModule,],
+        }), AuthModule, UserModule, ProduitModule, OrderModule, IngredientModule, UploadModule, SubscriptionModule],
     providers: [OrderService, IngredientService,],
     controllers: [],
 })
