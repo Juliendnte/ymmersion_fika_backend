@@ -2,6 +2,7 @@ import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common
 import {PrismaService} from "src/prisma/prisma.service";
 import {CreateOrderDto} from "src/module/order/dto/create-order.dto";
 import {ERROR} from "src/common/constants/error.constants";
+import {OrderEntity} from "src/module/order/entities/order.entity";
 
 @Injectable()
 export class OrderService {
@@ -130,6 +131,10 @@ export class OrderService {
     }
 
     async getAllOrder(){
-        return this.prismaService.order.findMany({})
+        const orders = await this.prismaService.order.findMany({})
+        return orders.map(({totalPrice, ...order}) => new OrderEntity({
+            totalPrice: totalPrice.toNumber(),
+            ...order
+        }))
     }
 }

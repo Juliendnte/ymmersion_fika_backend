@@ -16,7 +16,6 @@ export class ProduitEntity{
         if (Type){
             this.Type = new TypeEntity(Type);
         }
-
     }
 
     name: string;
