@@ -2,7 +2,7 @@ import {Module} from '@nestjs/common';
 import {SubscriptionController} from "src/module/subscription/subscription.controller";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {SubscriptionService} from "src/module/subscription/subscription.service";
-import {StripeModule} from 'nestjs-stripe';
+import { StripeModule } from '@golevelup/nestjs-stripe';
 
 @Module({
     imports: [
@@ -24,6 +24,7 @@ import {StripeModule} from 'nestjs-stripe';
     ],
     controllers: [SubscriptionController],
     providers: [SubscriptionService],
+    exports: [SubscriptionService],
 })
 export class SubscriptionModule {
 }

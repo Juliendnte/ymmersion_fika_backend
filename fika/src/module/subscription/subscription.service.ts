@@ -1,11 +1,11 @@
 import {Injectable} from '@nestjs/common';
-import {InjectStripeClient} from '@golevelup/nestjs-stripe';
+import { InjectStripeClient } from '@golevelup/nestjs-stripe';
 import Stripe from "stripe";
 
 @Injectable()
 export class SubscriptionService {
-    constructor(@InjectStripeClient() private stripe: Stripe) {
-    }
+    constructor(@InjectStripeClient() private stripe: Stripe) {}
+
 
     async createPaymentIntent(amount: number, currency: string, paymentMethodId: string) {
         try {
