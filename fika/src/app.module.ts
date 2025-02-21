@@ -16,8 +16,8 @@ import {SubscriptionModule} from "src/module/subscription/subscription.module";
         ConfigModule.forRoot({
             isGlobal: true,
             load: [configs],
-        }), AuthModule, UserModule, ProduitModule, OrderModule, IngredientModule, UploadModule, SubscriptionModule],
-    providers: [OrderService, IngredientService,],
+        }), AuthModule, UserModule, ProduitModule, OrderModule, IngredientModule, UploadModule, ],
+    providers: [OrderService, IngredientService, SubscriptionModule],
     controllers: [],
 })
 export class AppModule {
