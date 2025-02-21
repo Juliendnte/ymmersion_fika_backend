@@ -24,7 +24,7 @@ export class OrderService {
             orderItems.map(async order => {
                 if (order) {
                     const produit = await this.prismaService.produit.findUnique({
-                        where: {id: order.idProduit},
+                        where: {id: order.id},
                         include: {Produit_Ingredient: true}
                     })
 
@@ -36,7 +36,7 @@ export class OrderService {
                     const missing = baseIngredients.filter(id => !orderIngredients.includes(id));
                     if( missing.length > 0 ){
                         return missing.map(id => ({
-                            idProduit: order.idProduit,
+                            idProduit: order.id,
                             idIngredient: id
                         }))
                     }
@@ -101,7 +101,7 @@ export class OrderService {
                     create: orderItems.map(item => ({
                         quantity: item.quantity,
                         unitPrice: item.price,
-                        idProduit: item.idProduit
+                        idProduit: item.id
                     }))
                 },
                 OrderOption: {

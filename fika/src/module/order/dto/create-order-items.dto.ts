@@ -12,7 +12,7 @@ export class CreateOrderItemsDto {
 
     @IsNumber()
     @IsNotEmpty()
-    idProduit: number;
+    id: number;
 
     @IsNotEmpty()
     ingredients: IngredientEntity[]
